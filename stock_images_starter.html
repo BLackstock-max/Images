@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stockify — Starter Stock Image Store</title>
+  <meta name="description" content="Starter template for a free stock-image store (static, deployable to GitHub Pages)">
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#081126 0%,#071827 100%);color:#e6eef6}
+    header{padding:22px 24px;display:flex;align-items:center;gap:16px}
+    .logo{font-weight:700;font-size:18px;color:var(--accent)}
+    .container{max-width:1100px;margin:20px auto;padding:0 18px}
+    .hero{display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .hero h1{margin:0;font-size:28px}
+    .controls{display:flex;gap:8px;align-items:center}
+    .search{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .gallery{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:10px;border-radius:12px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+    .card img{width:100%;height:150px;object-fit:cover;border-radius:8px}
+    .meta{padding:8px 6px}
+    .meta h3{margin:0;font-size:14px}
+    .meta p{margin:6px 0 0; font-size:13px;color:var(--muted)}
+    .actions{display:flex;gap:8px;margin-top:8px}
+    button{cursor:pointer;padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:#042028;font-weight:600}
+    .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit}
+    .watermark{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,0.45);padding:4px 6px;border-radius:6px;font-size:11px}
+    /* modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--card);max-width:880px;width:94%;border-radius:12px;padding:16px}
+    .modal .large{height:380px;width:100%;object-fit:cover;border-radius:8px}
+    .modal-grid{display:grid;grid-template-columns:1fr 320px;gap:12px}
+    label{display:block;font-size:13px;margin-top:8px;color:var(--muted)}
+    input[type=text],input[type=email],select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .note{font-size:13px;color:var(--muted);margin-top:6px}
+    footer{margin:40px 0 80px;color:var(--muted);text-align:center}
+    @media(max-width:880px){.modal-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo">Stockify</div>
+        <div style="color:var(--muted);font-size:13px">Sell your stock images — starter template</div>
+      </div>
+      <nav style="display:flex;gap:8px;align-items:center">
+        <a href="#" style="color:var(--muted);text-decoration:none;font-size:13px">About</a>
+        <a href="#" style="color:var(--muted);text-decoration:none;font-size:13px">Licenses</a>
+        <a href="#" style="color:var(--accent);text-decoration:none;font-size:13px">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1>Beautiful photos — licensed for your projects</h1>
+        <p class="note">Preview images are watermarked. Buy to receive high-resolution originals. This is a static starter; payments are manual by default.</p>
+      </div>
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search photos, e.g. 'Nairobi', 'food'" />
+        <select id="category" class="search">
+          <option value="">All categories</option>
+          <option>Nature</option>
+          <option>People</option>
+          <option>Urban</option>
+          <option>Food</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="gallery" id="gallery"></section>
+
+    <div class="modal-backdrop" id="modal">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <strong id="modal-title">Image</strong>
+          <button class="btn-outline" id="modal-close">Close</button>
+        </div>
+        <div class="modal-grid">
+          <div>
+            <img id="modal-img" class="large" src="" alt="">
+            <div class="note">Tip: Use the license dropdown to choose Personal or Commercial. This starter does NOT process real payments — instructions included below.</div>
+          </div>
+          <aside>
+            <div style="padding:6px">
+              <div style="font-weight:700">$<span id="modal-price">5</span></div>
+              <div class="note" id="modal-tags">Tags: example, mock</div>
+
+              <label>License</label>
+              <select id="license">
+                <option value="personal">Personal - $5</option>
+                <option value="commercial">Commercial - $25</option>
+                <option value="extended">Extended - $75</option>
+              </select>
+
+              <label>Your email</label>
+              <input id="buyer-email" type="email" placeholder="you@example.com">
+
+              <button id="buy-now" style="margin-top:12px;width:100%">Buy / Request</button>
+
+              <div class="note">After you click Buy, this template will show an instruction box with a manual payment link (PayPal or M-Pesa) that you can replace with your own payment integration later. For full automation you will need a small backend (example in the docs inside this file).</div>
+
+              <div id="purchase-result" class="note" style="margin-top:8px"></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Starter template • Deploy to GitHub Pages or Netlify. Replace preview images with your own and store full-res originals offsite (Google Drive/Dropbox/AWS S3) until you integrate payments.
+    </footer>
+  </main>
+
+  <script>
+    // -----------------------------
+    // CONFIG: Replace these sample items with your own images and real download links
+    // Each item can include: id, title, tags, category, price, preview (watermarked), file (full-res download)
+    // For a static site, store full-res files in a private storage and only deliver after payment.
+    const IMAGES = [
+      {id:1,title:'Nairobi Sunset',tags:'sunset,kenya,city',category:'Urban',price:5,preview:'https://images.unsplash.com/photo-1508973376-1a1f3e7b4d33?w=800&auto=format&fit=crop&q=60',file:'https://example.com/downloads/nairobi-sunset-4k.jpg'},
+      {id:2,title:'Tea Farm Hills',tags:'agriculture,landscape,kenya',category:'Nature',price:8,preview:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&auto=format&fit=crop&q=60',file:'https://example.com/downloads/tea-farm.jpg'},
+      {id:3,title:'Market Vendor',tags:'people,market,africa',category:'People',price:6,preview:'https://images.unsplash.com/photo-1515165562835-c33b4a0da0d6?w=800&auto=format&fit=crop&q=60',file:'https://example.com/downloads/market-vendor.jpg'},
+      {id:4,title:'Street Food Plate',tags:'food,streetfood',category:'Food',price:4,preview:'https://images.unsplash.com/photo-1543352634-3a2b4e7a53f2?w=800&auto=format&fit=crop&q=60',file:'https://example.com/downloads/street-food.jpg'}
+    ];
+
+    // -----------------------------
+    // Render gallery
+    const gallery = document.getElementById('gallery');
+    function render(list){
+      gallery.innerHTML = '';
+      list.forEach(it => {
+        const div = document.createElement('div'); div.className='card';
+        div.innerHTML = `
+          <img src="${it.preview}" alt="${escapeHtml(it.title)}">
+          <div class="watermark">Stockify</div>
+          <div class="meta">
+            <h3>${escapeHtml(it.title)}</h3>
+            <p>From $${it.price} • ${escapeHtml(it.category)}</p>
+            <div class="actions">
+              <button class="view" data-id="${it.id}">Preview</button>
+              <button class="btn-outline buy" data-id="${it.id}">Buy</button>
+            </div>
+          </div>
+        `;
+        gallery.appendChild(div);
+      })
+    }
+    render(IMAGES);
+
+    // -----------------------------
+    // Search + Filter
+    const search = document.getElementById('search');
+    const category = document.getElementById('category');
+    search.addEventListener('input',applyFilter);
+    category.addEventListener('change',applyFilter);
+    function applyFilter(){
+      const q = search.value.trim().toLowerCase();
+      const cat = category.value;
+      const filtered = IMAGES.filter(i=>{
+        if(cat && i.category !== cat) return false;
+        if(!q) return true;
+        return (i.title + ' ' + i.tags + ' ' + i.category).toLowerCase().includes(q);
+      });
+      render(filtered);
+    }
+
+    // -----------------------------
+    // Modal behaviour
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalPrice = document.getElementById('modal-price');
+    const modalTags = document.getElementById('modal-tags');
+    let currentImage = null;
+
+    document.body.addEventListener('click',e=>{
+      const v = e.target.closest('.view');
+      const b = e.target.closest('.buy');
+      if(v){ openModal(findById(v.dataset.id)); }
+      if(b){ openModal(findById(b.dataset.id)); }
+    });
+
+    document.getElementById('modal-close').addEventListener('click',()=>closeModal());
+    modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+
+    function openModal(item){
+      if(!item) return;
+      currentImage = item;
+      modalImg.src = item.preview;
+      modalTitle.textContent = item.title;
+      modalPrice.textContent = item.price;
+      modalTags.textContent = 'Tags: '+item.tags;
+      document.getElementById('license').value = 'personal';
+      document.getElementById('buyer-email').value = '';
+      document.getElementById('purchase-result').textContent = '';
+      modal.style.display = 'flex';
+    }
+    function closeModal(){ modal.style.display = 'none'; }
+
+    function findById(id){return IMAGES.find(i=>String(i.id)===String(id));}
+
+    // -----------------------------
+    // Fake purchase flow (manual by default)
+    document.getElementById('buy-now').addEventListener('click',()=>{
+      const email = document.getElementById('buyer-email').value.trim();
+      const license = document.getElementById('license').value;
+      const result = document.getElementById('purchase-result');
+      if(!currentImage){ result.textContent='No image selected.'; return; }
+      if(!email || !validateEmail(email)){ result.textContent='Please enter a valid email.'; return; }
+
+      // In a real site: call your backend to create an order and payment link
+      // For this starter: craft a manual-instruction box the seller can copy/paste to send to buyer
+      const price = license==='personal' ? currentImage.price : (license==='commercial' ? Math.max(25,currentImage.price*4) : Math.max(75,currentImage.price*12));
+
+      const manual = `ORDER SUMMARY:\nImage: ${currentImage.title}\nLicense: ${license}\nPrice: $${price}\nBuyer email: ${email}\n\nINSTRUCTIONS FOR SELLER (you):\n1) Send payment request to the buyer (PayPal, M-Pesa, etc) for USD ${price}.\n2) After payment confirm, provide the buyer the file link: ${currentImage.file} \n(Replace this with your protected link).\n\nTip: To automate, build a small backend to create payment sessions and send secure one-time download links.`;
+
+      // Show a user-friendly box
+      result.innerHTML = `<strong>Manual order created.</strong><pre style="white-space:pre-wrap;margin-top:8px">${escapeHtml(manual)}</pre>`;
+
+      // Optionally copy to clipboard
+      navigator.clipboard?.writeText(manual).catch(()=>{});
+    });
+
+    // -----------------------------
+    // Small helpers
+    function escapeHtml(s){return String(s).replace(/[&<>\"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c])}
+    function validateEmail(e){return /\S+@\S+\.\S+/.test(e)}
+
+    // -----------------------------
+    // Deployment notes (display in console for convenience)
+    console.log(`Starter template loaded.\n- Replace IMAGES array with your own images and secure file links.\n- Deploy to GitHub Pages by creating a repo and enabling Pages on main branch.\n- To accept payments: integrate PayPal/Stripe/Flutterwave and create a small backend to issue secure download tokens.`);
+  </script>
+</body>
+</html>
